@@ -29,6 +29,8 @@ inline quadlet_t bswap_32(quadlet_t data) { return _byteswap_ulong(data); }
 #include <byteswap.h>
 #endif
 
+#include "ap_fixed.h"
+
 const AmpIO_UInt32 VALID_BIT        = 0x80000000;  /*!< High bit of 32-bit word */
 const AmpIO_UInt32 COLLECT_BIT      = 0x40000000;  /*!< Enable data collection on FPGA */
 const AmpIO_UInt32 MIDRANGE_ADC     = 0x00008000;  /*!< Midrange value of ADC bits */
@@ -1033,6 +1035,21 @@ bool AmpIO::WriteIPv4Address(AmpIO_UInt32 IPaddr)
         return false;
     }
     return (port ? port->WriteQuadlet(BoardId, 11, IPaddr) : false);
+}
+
+bool AmpIO::WriteMotorControlMode(unsigned int index, MotorControlMode mode) {
+    return (port ? port->WriteQuadlet(BoardId, ADDR_MOTOR_CONTROL << 12 | (index + 1) << 4 | OFF_MOTOR_CONTROL_MODE, mode) : false);
+}
+
+bool AmpIO::WriteCurrentLoopParameters(unsigned int index, double kp, double ki, AmpIO_UInt16 iTermLimit, AmpIO_UInt16 outputLimit)
+{
+    typedef ap_ufixed<16,4> coef_t;
+    coef_t kp_fixed = kp;
+    coef_t ki_fixed = ki;
+    return (port ? port->WriteQuadlet(BoardId, ADDR_MOTOR_CONTROL << 12 | (index + 1) << 4 | OFF_MOTOR_CONTROL_KP, kp_fixed) : false);
+    return (port ? port->WriteQuadlet(BoardId, ADDR_MOTOR_CONTROL << 12 | (index + 1) << 4 | OFF_MOTOR_CONTROL_KI, ki_fixed) : false);
+    return (port ? port->WriteQuadlet(BoardId, ADDR_MOTOR_CONTROL << 12 | (index + 1) << 4 | OFF_MOTOR_CONTROL_I_TERM_LIMIT, iTermLimit) : false);
+    return (port ? port->WriteQuadlet(BoardId, ADDR_MOTOR_CONTROL << 12 | (index + 1) << 4 | OFF_MOTOR_CONTROL_OUTPUT_LIMIT, outputLimit) : false);
 }
 
 AmpIO_UInt32 AmpIO::GetDoutCounts(double time) const

@@ -336,6 +336,15 @@ public:
     */
     bool WriteIPv4Address(AmpIO_UInt32 IPaddr);
 
+    enum MotorControlMode {
+        PWM_DUTY_CYCLE = 0,
+        CURRENT = 1
+    };
+
+    bool WriteMotorControlMode(unsigned int index, MotorControlMode mode);
+
+    bool WriteCurrentLoopParameters(unsigned int index, double kp, double ki, AmpIO_UInt16 iTermLimit, AmpIO_UInt16 outputLimit);
+
     /*! \brief Get digital output time (in counts) corresponding to specified time in seconds.
 
         \param time Time, in seconds
@@ -606,6 +615,18 @@ protected:
         VEL_DATA_OFFSET = 6,       // enc data register (velocity, 4/DT method)
         VEL_DP_DATA_OFFSET = 7,    // enc data register (velocity, DP/1 method)
         DOUT_CTRL_OFFSET = 8       // digital output control (PWM, one-shot)
+    };
+
+    enum {
+        OFF_MOTOR_CONTROL_MODE = 0,
+        OFF_MOTOR_CONTROL_KP = 1,
+        OFF_MOTOR_CONTROL_KI = 2,
+        OFF_MOTOR_CONTROL_I_TERM_LIMIT = 3,
+        OFF_MOTOR_CONTROL_OUTPUT_LIMIT = 4
+    };
+
+    enum {
+        ADDR_MOTOR_CONTROL = 8 
     };
 };
 
