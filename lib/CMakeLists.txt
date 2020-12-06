@@ -87,3 +87,10 @@ install (TARGETS Amp1394 COMPONENT Amp1394
 install (FILES ${HEADERS}
          DESTINATION include/Amp1394
          COMPONENT Amp1394-dev)
+
+option (Amp1394_BUILD_PYBIND11 "Build Amp1394 with pybind11 Python wrapper" OFF)
+if (Amp1394_BUILD_PYBIND11)
+  find_package(pybind11 REQUIRED)
+  pybind11_add_module(pyamp1394 py/pyamp1394.cpp ${HEADERS} ${SOURCE_FILES})
+  target_link_libraries(pyamp1394 PUBLIC ${Amp1394_EXTRA_LIBRARIES})
+endif (Amp1394_BUILD_PYBIND11)
