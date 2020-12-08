@@ -343,7 +343,7 @@ public:
 
     bool WriteMotorControlMode(unsigned int index, MotorControlMode mode);
 
-    bool WriteCurrentLoopParameters(unsigned int index, double kp, double ki, AmpIO_UInt16 iTermLimit, AmpIO_UInt16 outputLimit);
+    bool WriteCurrentLoopParameters(unsigned int index, AmpIO_UInt16 kp, AmpIO_UInt16 ki, AmpIO_UInt16 iTermLimit, AmpIO_UInt16 outputLimit);
 
     /*! \brief Get digital output time (in counts) corresponding to specified time in seconds.
 

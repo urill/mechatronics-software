@@ -1041,15 +1041,17 @@ bool AmpIO::WriteMotorControlMode(unsigned int index, MotorControlMode mode) {
     return (port ? port->WriteQuadlet(BoardId, ADDR_MOTOR_CONTROL << 12 | (index + 1) << 4 | OFF_MOTOR_CONTROL_MODE, mode) : false);
 }
 
-bool AmpIO::WriteCurrentLoopParameters(unsigned int index, double kp, double ki, AmpIO_UInt16 iTermLimit, AmpIO_UInt16 outputLimit)
+bool AmpIO::WriteCurrentLoopParameters(unsigned int index, AmpIO_UInt16 kp, AmpIO_UInt16 ki, AmpIO_UInt16 iTermLimit, AmpIO_UInt16 outputLimit)
 {
-    typedef ap_ufixed<16,4> coef_t;
-    coef_t kp_fixed = kp;
-    coef_t ki_fixed = ki;
-    return (port ? port->WriteQuadlet(BoardId, ADDR_MOTOR_CONTROL << 12 | (index + 1) << 4 | OFF_MOTOR_CONTROL_KP, kp_fixed) : false);
-    return (port ? port->WriteQuadlet(BoardId, ADDR_MOTOR_CONTROL << 12 | (index + 1) << 4 | OFF_MOTOR_CONTROL_KI, ki_fixed) : false);
-    return (port ? port->WriteQuadlet(BoardId, ADDR_MOTOR_CONTROL << 12 | (index + 1) << 4 | OFF_MOTOR_CONTROL_I_TERM_LIMIT, iTermLimit) : false);
-    return (port ? port->WriteQuadlet(BoardId, ADDR_MOTOR_CONTROL << 12 | (index + 1) << 4 | OFF_MOTOR_CONTROL_OUTPUT_LIMIT, outputLimit) : false);
+    // typedef ap_ufixed<16,4> coef_t;
+    // coef_t kp_fixed = kp;
+    // coef_t ki_fixed = ki;
+    bool success = 1;
+    success &= (port ? port->WriteQuadlet(BoardId, ADDR_MOTOR_CONTROL << 12 | (index + 1) << 4 | OFF_MOTOR_CONTROL_KP, kp) : false);
+    success &= (port ? port->WriteQuadlet(BoardId, ADDR_MOTOR_CONTROL << 12 | (index + 1) << 4 | OFF_MOTOR_CONTROL_KI, ki) : false);
+    success &= (port ? port->WriteQuadlet(BoardId, ADDR_MOTOR_CONTROL << 12 | (index + 1) << 4 | OFF_MOTOR_CONTROL_I_TERM_LIMIT, iTermLimit) : false);
+    success &= (port ? port->WriteQuadlet(BoardId, ADDR_MOTOR_CONTROL << 12 | (index + 1) << 4 | OFF_MOTOR_CONTROL_OUTPUT_LIMIT, outputLimit) : false);
+    return success;
 }
 
 AmpIO_UInt32 AmpIO::GetDoutCounts(double time) const
