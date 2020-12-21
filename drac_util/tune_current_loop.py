@@ -31,16 +31,16 @@ app.layout = html.Div(children=[
 
     dbc.FormGroup([
         dbc.Label('kp'),
-        dbc.Input(id='kp', type='number', value=0, step=0.001)
+        dbc.Input(id='kp', type='number', value=0.01, step=0.001)
     ]),
 
     dbc.FormGroup([
         dbc.Label('ki'),
-        dbc.Input(id='ki', type='number', value=0, step=0.001)
+        dbc.Input(id='ki', type='number', value=0.01, step=0.001)
     ]),
     dbc.FormGroup([
         dbc.Label('I term limit'),
-        dbc.Input(id='i_term_limit', type='number', value=511)
+        dbc.Input(id='i_term_limit', type='number', value=1023)
     ]),
     dbc.FormGroup([
         dbc.Label('output limit'),
@@ -50,13 +50,14 @@ app.layout = html.Div(children=[
 
     dbc.Button('write', id='write_pi'),
     dbc.FormGroup([
-        dbc.Label('Current setpoint'),
-        dbc.Input(id='current_setpoint', type='number', value=0)
+        dbc.Label('Current setpoint (A)'),
+        dbc.Input(id='current_setpoint', type='number', value=0.0, step=0.01)
     ]),
     dbc.Button('write', id='write_current'),
 
     html.Div(id='live-update-text'),
-    html.Div(id='placeholder')
+    html.Div(id='placeholder'),
+    html.Div(id='placeholder2')
 
 
 ], style={'width': '20rem', 'padding': '2rem'})
@@ -69,7 +70,7 @@ def update_metrics(n, channel, current_setpoint):
     port.read_all_boards()
     index = channel - 1
     current_measured = board.get_motor_current(index)
-    error = current_measured - current_setpoint * adc_count_from_amp
+    error = current_measured - int(current_setpoint * adc_count_from_amp) - 0x8000
     return [
         html.Span(f'Current ADC = 0x{current_measured:04x} = {(current_measured - 0x8000)/adc_count_from_amp:.3f} A. error = {error} = {error/adc_count_from_amp:.3f} A'),
     ]
@@ -93,6 +94,19 @@ def write_current_loop_parameters(n_clicks, channel, kp, ki, i_term_limit, outpu
     kp_fixed = float_to_fixed(float(kp), decimal_bits)
     ki_fixed = float_to_fixed(float(ki), decimal_bits)
     board.write_current_loop_parameters(index,kp_fixed , ki_fixed, int(i_term_limit), int(output_limit))
+    return f'write #{n_clicks}'
+
+@app.callback(
+    Output('placeholder2', 'children'),
+    Input('write_current', 'n_clicks'),
+    State('channel', 'value'),
+    State('current_setpoint', 'value'))
+def write_current_loop_parameters(n_clicks, channel, current_setpoint):
+    index = channel - 1
+    setpoint_raw = int(current_setpoint * adc_count_from_amp) + 0x8000
+    print(hex(setpoint_raw))
+    board.set_motor_current(index, setpoint_raw)
+    port.write_all_boards()
     return f'write #{n_clicks}'
 
 if __name__ == '__main__':
